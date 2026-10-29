@@ -23,3 +23,4 @@
 find target/linux/qualcommax/ -type f \( -name "*ax3600*.dts*" -o -name "*ax3600*.dtsi*" \) -exec sed -i 's/<0x0 0x23c0000>/<0x0 0xef00000>/g' {} + || true
 find target/linux/qualcommax/ -type f \( -name "*ax3600*.dts*" -o -name "*ax3600*.dtsi*" \) -exec sed -i 's/36044800/251658240/g' {} + || true
 find target/linux/qualcommax/image/ -type f -name "*.mk" -exec sed -i 's/35232k/245760k/g' {} + || true
+find target/linux/qualcommax/ -type f \( -name "*ax3600*.dts*" -o -name "*ax3600*.dtsi*" \) -exec sed -i 's/"rootfs"/"rootfs_1"/g' {} + || true
