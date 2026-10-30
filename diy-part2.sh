@@ -1,6 +1,6 @@
 #!/bin/bash
 #
-# https://github.com/P3TERX/Actions-OpenWrt
+# https://github.com
 # File name: diy-part2.sh
 # Description: OpenWrt DIY script part 2 (After Update feeds)
 #
@@ -19,8 +19,13 @@
 # Modify hostname
 #sed -i 's/OpenWrt/P3TERX-Router/g' package/base-files/files/bin/config_generate
 
-# 自動遞迴搜尋並修改 AX3600 的 DTS 分區為 240M 大分區 (相容 openwrt-24.10 / uBootKit)
-find target/linux/qualcommax/ -type f \( -name "*ax3600*.dts*" -o -name "*ax3600*.dtsi*" \) -exec sed -i 's/<0x0 0x23c0000>/<0x0 0xef00000>/g' {} + || true
-find target/linux/qualcommax/ -type f \( -name "*ax3600*.dts*" -o -name "*ax3600*.dtsi*" \) -exec sed -i 's/36044800/251658240/g' {} + || true
-find target/linux/qualcommax/image/ -type f -name "*.mk" -exec sed -i 's/35232k/245760k/g' {} + || true
-find target/linux/qualcommax/ -type f \( -name "*ax3600*.dts*" -o -name "*ax3600*.dtsi*" \) -exec sed -i 's/"rootfs"/"rootfs_1"/g' {} + || true
+# =====================================================================
+# 強制讓 Xiaomi AX3600 大分區 (custom-layout) 在編譯時生成 U-Boot 網頁直刷的 factory.bin
+# =====================================================================
+if [ -f target/linux/qualcommax/image/ipq807x.mk ]; then
+    # 1. 在 IMAGES 參數中補上 factory.bin
+    sed -i '/define Device\/xiaomi_ax3600-custom-layout/,/endef/s/IMAGES := sysupgrade.bin/IMAGES := factory.bin sysupgrade.bin/g' target/linux/qualcommax/image/ipq807x.mk
+    
+    # 2. 插入 factory.bin 的打包生成邏輯
+    sed -i '/IMAGE\/sysupgrade.bin :=/i \\tIMAGE\/factory.bin := append-kernel | pad-to $$$$(BLOCKSIZE) | append-ubi' target/linux/qualcommax/image/ipq807x.mk
+fi
